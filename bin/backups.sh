@@ -12,11 +12,11 @@ BackupLoc=/opt/backup
 
 BackupType="$1"
 
-echo $BackupType
-
 date=$(date +%m-%d-%Y_%H-%M)
 
 logFile=$BackupLoc-$date.log
+
+snapBackup=$(hostname).snap
 
 ###	comprobaciones
 
@@ -43,10 +43,8 @@ fi
 # lo mueve a un nuevo directorio
 
 if [ "$BackupType" == "full" ]; then
-        backupFile=$(hostname)-$date-full.tar
-        snapBackup=$(hostname)-full.snap
+        backupFile=$(hostname)-$date-full.tar.gz
         echo "Tipo de backup: FULL" | tee -a $logFile
-        echo "" | tee -a $logFile
         if [ -f $BackupLoc/$snapBackup ]; then
                 echo " Encontrado snapshot " | tee -a $logFile
                 echo " Moviendo a: $BackupLoc/FULL-$date/" | tee -a $logFile
@@ -56,7 +54,7 @@ if [ "$BackupType" == "full" ]; then
                 #mv $BackupLoc/*.log  $BackupLoc/FULL-$date/ 2>> $logFile 1>> $logFile
                 echo "" | tee -a $logFile
         fi
-        echo " Ejecutando Backup" | tee -a $logFile
+        echo "Ejecutando Backup" | tee -a $logFile
         tar --listed-incremental=$BackupLoc/$snapBackup -cvpzf $BackupLoc/$backupFile "$Backup/" 2>> $logFile 1>> $logFile
         if [[ $? = 0 ]]; then
                 echo "Backup realizado" | tee -a $logFile
@@ -68,6 +66,24 @@ fi
 ###   incremental backup
 
 # genera copias incrementales sobre un snapshot previamente creado (termina la ejecución si no se encuentra)
+
+# INCREMENTAL
+if [ "$BackupType" == "incremental" ]; then
+        backupFile=$(hostname)-$date-incremental.tar.gz
+        echo "Tipo de backup: INCREMENTAL" | tee -a $logFile
+        if [ ! -f $BackupLoc/$snapBackup ]; then
+                echo " ERROR: Snapshot no encontrado, crear un backup completo antes" | tee -a $logFile
+                exit 1
+        fi
+        echo "Ejecutando Backup" | tee -a $logFile
+        tar --listed-incremental=$BackupLoc/$snapBackup -cvpzf $BackupLoc/$backupFile "$Backup/" 2>> $logFile 1>> $logFile
+        if [[ $? = 0 ]]; then
+                echo "Backup realizado" | tee -a $logFile
+        else
+                echo "Backup no realizado" | tee -a $logFile
+        fi
+fi
+
 
 ###	rsync
 
