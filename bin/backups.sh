@@ -1,90 +1,117 @@
 #!/bin/bash
-
-#script para realizar backups completos e incrementales
-
-#ejecucion: backup-bash.sh [full|incremental]
+#
+#script para realizar backups completos,incrementales y diferenciales
+#
+#ejecucion: backup-bash.sh [full|incremental|diferencial] [remote]
 
 ###	variables
-
-Backup=/home/sergio/github/backup-bash/bin/www
-
+host=$(hostname)
 BackupLoc=/opt/backup
-
 BackupType="$1"
-
-date=$(date +%m-%d-%Y_%H-%M)
-
-logFile=$BackupLoc-$date.log
-
-snapBackup=$(hostname).snap
+date=$(date +%Y-%m-%d)
+logFile=$BackupLoc/logs/$host-$date.log
+snapBackup=$host.snar
+hostBackupDirs=/etc/backups/hosts/$host
+remoteDir=/home/debian/backups
+remoteHost=172.22.200.225
+remoteUser=debian
+email=sergiotm87@gmail.com
 
 ###	comprobaciones
-
-# comprobar tipo de backup
-if [ "$#" -ne 1 ]; then
-    echo "ERROR: Cantidad de argumentos nvalidos." | tee -a $logFile
-exit 1
+# directorio de backups
+if [ ! -d $BackupLoc ]; then
+        echo "Creando Directorio: $BackupLoc"
+        mkdir -p $BackupLoc/logs/
 fi
-if [[ "$BackupType" != "full" && "$BackupType" != "incremental" ]]; then
+# tipo de backup
+if [[ "$BackupType" != "full" && "$BackupType" != "incremental" && "$BackupType" != "diferencial" ]]; then
         echo "ERROR: Argumentos invalidos" | tee -a $logFile
-        echo "Ejecutar como <full> o <incremental>" | tee -a $logFile
+        echo "Ejecutar como <full>, <incremental> o <diferencial>" | tee -a $logFile
+        exit 1
+fi
+# existe el fichero de directorios del host con los directorios a los que realizar backup
+if [ ! -f $hostBackupDirs ]; then
+        echo "ERROR: no existe el fichero $hostBackupDirs" | tee -a $logFile
+        echo "Especificar a que directorios realizar backup" | tee -a $logFile
         exit 1
 fi
 
-# comprobar que existe el directorio de backups
-if [ ! -d $BackupLoc ]; then 
-        echo "Creando Directorio: $BackupLoc" | tee -a $logFile
-        mkdir -p $BackupLoc 2>> $logFile 1>> $logFile
-fi
+function makeBackup(){
+  echo "Ejecutando Backup" | tee -a $logFile
+  mkdir $BackupLoc/$host-$BackupType-$date
+  tar --listed-incremental=$BackupLoc/$snapBackup -cvpzf $BackupLoc/$host-$BackupType-$date/$backupFile $(cat $hostBackupDirs | paste -sd " " -) 2>> $logFile 1>> $logFile
+  if [[ $? = 0 ]]; then
+          echo "Backup realizado: $backupFile" | tee -a $logFile
+          date > $BackupLoc/lastbackup.txt | tee -a $logFile
+  else
+          echo "Backup no realizado" | tee -a $logFile
+          mail -s "error de backup" $email < $logFile
+          exit 1
+  fi
+}
+
+
+function insercionCoconut(){
+  echo "Insercion en Coconut" | tee -a $logFile
+}
 
 ###	full backup
-
-# genera un snapshot sobre el que realizar las copias incrementales, si encuentra uno previamente creado
-# lo mueve a un nuevo directorio
+# genera una copia completa y un snapshot sobre el que realizar las copias incrementales
 
 if [ "$BackupType" == "full" ]; then
-        backupFile=$(hostname)-$date-full.tar.gz
+        backupFile=$host-full-$date.tar.gz
         echo "Tipo de backup: FULL" | tee -a $logFile
         if [ -f $BackupLoc/$snapBackup ]; then
-                echo " Encontrado snapshot " | tee -a $logFile
-                echo " Moviendo a: $BackupLoc/FULL-$date/" | tee -a $logFile
-                mkdir $BackupLoc/FULL-$date/ 2>> $logFile 1>> $logFile
-                mv $BackupLoc/$snapBackup $BackupLoc/FULL-$date/ 2>> $logFile 1>> $logFile
-                mv $BackupLoc/*.tar $BackupLoc/FULL-$date/ 2>> $logFile 1>> $logFile
-                #mv $BackupLoc/*.log  $BackupLoc/FULL-$date/ 2>> $logFile 1>> $logFile
-                echo "" | tee -a $logFile
+                echo "Encontrado snapshot, generando uno nuevo.." | tee -a $logFile
+                rm $BackupLoc/$snapBackup
         fi
-        echo "Ejecutando Backup" | tee -a $logFile
-        tar --listed-incremental=$BackupLoc/$snapBackup -cvpzf $BackupLoc/$backupFile "$Backup/" 2>> $logFile 1>> $logFile
-        if [[ $? = 0 ]]; then
-                echo "Backup realizado" | tee -a $logFile
-        else
-                echo "Backup no realizado" | tee -a $logFile
-        fi
+        makeBackup
 fi
 
 ###   incremental backup
+# genera copias incrementales sobre un snapshot previamente creado
 
-# genera copias incrementales sobre un snapshot previamente creado (termina la ejecución si no se encuentra)
-
-# INCREMENTAL
 if [ "$BackupType" == "incremental" ]; then
-        backupFile=$(hostname)-$date-incremental.tar.gz
+        backupFile=$host-incremental-$date.tar.gz
         echo "Tipo de backup: INCREMENTAL" | tee -a $logFile
         if [ ! -f $BackupLoc/$snapBackup ]; then
-                echo " ERROR: Snapshot no encontrado, crear un backup completo antes" | tee -a $logFile
+                echo "ERROR: Snapshot no encontrado, crear un backup completo antes" | tee -a $logFile
                 exit 1
         fi
-        echo "Ejecutando Backup" | tee -a $logFile
-        tar --listed-incremental=$BackupLoc/$snapBackup -cvpzf $BackupLoc/$backupFile "$Backup/" 2>> $logFile 1>> $logFile
-        if [[ $? = 0 ]]; then
-                echo "Backup realizado" | tee -a $logFile
-        else
-                echo "Backup no realizado" | tee -a $logFile
-        fi
+        makeBackup
 fi
 
 
+###   diferencial backup
+# genera copias diferenciales desde la fecha del ultimo backup completo/incremental
+
+if [ "$BackupType" == "diferencial" ]; then
+        backupFile=$(hostname)-$date-diferencial.tar.gz
+        mkdir $BackupLoc/$host-$BackupType-$date
+        echo "Tipo de backup: DIFERENCIAL" | tee -a $logFile
+        tar -cvpzf $BackupLoc/$host-$BackupType-$date/$backupFile -N $BackupLoc/lastbackup.txt $(cat $hostBackupDirs | paste -sd " " -) 2>> $logFile 1>> $logFile
+        if [[ $? = 0 ]]; then
+                echo "Backup realizado: $backupFile" | tee -a $logFile
+        else
+                echo "Backup no realizado" | tee -a $logFile
+                mail -s "error de backup" $email < $logFile
+                exit 1
+        fi
+fi
+
 ###	rsync
 
-# envia el fichero generado a un directorio remoto
+if [ "$2" == "remote" ]; then
+        echo "Sincronizando con servidor remoto: $servidorRemoto" | tee -a $logFile
+        rsync -a $BackupLoc/$host-$date-$BackupType/$backupFile $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
+        #rsync --delete-before -avze "ssh -i $DST_RMT_CERT" $BackupLoc/ $DST_RMT_USER@$servidorRemoto:$remoteDir 2>> $LOG 1>> $LOG
+        if [[ $? = 0 ]]; then
+                echo "Sincronizacion realizada" | tee -a $logFile
+                #
+                # realizar insercion en coconut
+                #
+        else
+                echo "Sincronizacion fallida" | tee -a $logFile
+                mail -s "error de backup" $email < $logFile
+        fi
+fi
