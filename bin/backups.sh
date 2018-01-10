@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 #script para realizar backups completos,incrementales y diferenciales
-#
 #ejecucion: backup-bash.sh full|incremental|diferencial [remote]
+#requisitos: rsync
+#
 
 ###	variables
 host=$(hostname)
@@ -11,19 +12,18 @@ BackupType="$1"
 date=$(date +%Y-%m-%d)
 logFile=$BackupLoc/logs/$host-$date.log
 snapBackup=$host.snar
-#hostBackupDirs=/etc/backups/hosts/$host
-hostBackupDirs=/home/$USER/github/backup-bash/etc/backups/hosts/$host
+hostBackupDirs=/home/$USER/github/backup-bash/etc/backups/hosts/$host #ficheros de cada host con directorios a guardar
+
 remoteDir=/home/debian/backups
 remoteHost=172.22.200.42
 remoteUser=debian
 email=sergiotm87@gmail.com
 
-sergiomsi=172.22.5.111
 mickey=172.22.200
 minnie=172.22.81
 donald=172.22.85
 
-configfiles=/home/debian/github/backup-bash/etc/backups/
+configfiles=/home/$USER/github/backup-bash/etc/backups/ #par de claves para encriptacion
 cryptloc=$BackupLoc/$host-$BackupType-$date #directorio donde se guardan los objetos encriptados
 
 ###	comprobaciones
@@ -31,7 +31,7 @@ cryptloc=$BackupLoc/$host-$BackupType-$date #directorio donde se guardan los obj
 # numero argumentos correctos
 if [[ $# != 1 && $# != 2 ]]; then
     echo "ERROR: Argumentos invalidos" | tee -a $logFile
-    echo "Uso: $0 [full|incremental|diferencial] [remote]" | tee -a $logFile
+    echo "Uso: $0 full|incremental|diferencial [remote]" | tee -a $logFile
     exit
 fi
 # directorio de backups
@@ -125,7 +125,7 @@ fi
 
 
 ###   diferencial backup
-# genera copias diferenciales desde la fecha del ultimo backup completo/incremental
+# genera copias diferenciales desde la fecha de la ultima copia (fecha registrada en lastbackup.txt (no usar junto a incrementales con esta configuracion))
 
 # if [ "$BackupType" == "diferencial" ]; then
 #         backupFile=$(hostname)-$date-diferencial.tar.gz
@@ -146,7 +146,6 @@ fi
 if [ "$2" == "remote" ]; then
         echo "Sincronizando con servidor remoto: $remoteHost" | tee -a $logFile
         rsync --delete-after -a -e "ssh -i ~/.ssh/backup" $BackupLoc/$host-$BackupType-$date $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
-        #rsync --delete-before -avze "ssh -i $DST_RMT_CERT" $BackupLoc/ $DST_RMT_USER@$servidorRemoto:$remoteDir 2>> $LOG 1>> $LOG
         if [[ $? = 0 ]]; then
                 echo "Sincronizacion realizada" | tee -a $logFile
                 #insercionCoconut
@@ -155,3 +154,11 @@ if [ "$2" == "remote" ]; then
                 mail -s "error de backup" $email < $logFile
         fi
 fi
+
+#T O D O
+
+# estudiar diferencias del parametro de rsync --delete
+# asignar nombres de variables mas claros
+# cambiar rutas de ficheros por defecto a /etc/backups...
+# añadir al readme los pasos no mostrados aqui (documentacion general (usar tarea redmine), creacion de ~/.pgpass para insertar en coconut, creacion de pares de claves tanto para la encriptacion como la conexion remota)
+# modificar copias diferenciales para usar solo sobre copias completas
