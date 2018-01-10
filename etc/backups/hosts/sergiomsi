@@ -1,1 +1,3 @@
-/etc
+NC /etc
+C /root
+NC /opt/backup/encrypted
