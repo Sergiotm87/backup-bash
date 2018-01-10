@@ -60,7 +60,6 @@ function makeBackup(){
   if [[ $? = 0 ]]; then
           echo "Backup realizado: $backupFile" | tee -a $logFile
           date > $BackupLoc/lastbackup.txt | tee -a $logFile
-          #insercionCoconut
   else
           echo "Backup no realizado" | tee -a $logFile
           mail -s "error de backup" $email < $logFile
