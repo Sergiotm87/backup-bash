@@ -23,7 +23,7 @@ mickey=172.22.200
 minnie=172.22.81
 donald=172.22.85
 
-configfiles=/home/sergio/github/backup-bash/etc/backups/
+configfiles=/home/debian/github/backup-bash/etc/backups/
 cryptloc=$BackupLoc/$host-$BackupType-$date #directorio donde se guardan los objetos encriptados
 
 ###	comprobaciones
@@ -145,7 +145,7 @@ fi
 
 if [ "$2" == "remote" ]; then
         echo "Sincronizando con servidor remoto: $remoteHost" | tee -a $logFile
-        rsync --delete-after -a $BackupLoc/$host-$BackupType-$date $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
+        rsync --delete-after -a -e "ssh -i ~/.ssh/backup" $BackupLoc/$host-$BackupType-$date $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
         #rsync --delete-before -avze "ssh -i $DST_RMT_CERT" $BackupLoc/ $DST_RMT_USER@$servidorRemoto:$remoteDir 2>> $LOG 1>> $LOG
         if [[ $? = 0 ]]; then
                 echo "Sincronizacion realizada" | tee -a $logFile
