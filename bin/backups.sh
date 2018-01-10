@@ -98,13 +98,6 @@ function encriptar(){
   rm ${cryptloc}/key.txt
 }
 
-
-# function desencriptar(){
-#   echo "Desencriptando directorio" | tee -a $logFile
-#   openssl rsautl -decrypt -inkey ./backup.pem -in key.encrypted -out key.txt
-#   openssl enc -aes-256-cbc -pass file:key.txt -in $objeto -out $(echo $objeto | cut -d'.' -f 1,2,3)
-# }
-
 ###	full backup
 # genera una copia completa y un snapshot sobre el que realizar las copias incrementales
 
@@ -165,12 +158,3 @@ if [ "$2" == "remote" ]; then
                 mail -s "error de backup" $email < $logFile
         fi
 fi
-
-
-## todo
-# terminar desencriptar (y ajustar el cryptloc de los ficheros a la ruta correspondiente)
-# cambiar a diferencial sobre completas, incrementales sobre completas o diferenciales
-# poner hostBackupDirs-configfiles correcto
-# documentar fichero ~/.pgpass (chmod 0600 ~/.pgpass) para la insercion en coconut
-# probar en mickey,minnie,donald
-# https://help.ubuntu.com/community/BackupYourSystem/TAR
