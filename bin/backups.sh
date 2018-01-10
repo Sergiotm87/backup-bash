@@ -14,7 +14,7 @@ snapBackup=$host.snar
 #hostBackupDirs=/etc/backups/hosts/$host
 hostBackupDirs=/home/sergio/github/backup-bash/etc/backups/hosts/$host
 remoteDir=/home/debian/backups
-remoteHost=172.22.200.225
+remoteHost=172.22.200.42
 remoteUser=debian
 email=sergiotm87@gmail.com
 
@@ -89,7 +89,7 @@ function encriptar(){
     fichero=$(echo ${line} | cut -d' ' -f2)
     ficherotar=${fichero}.tar.gz
     if [[ ${option} == 'C' ]]; then
-      tar -cpzf ${ficherotar} ${fichero} &>/dev/null
+      tar -cpzf ${ficherotar} ${fichero} 2>> $logFile 1>> $logFile
       openssl enc -aes-256-cbc -pass file:${cryptloc}/key.txt -in ${ficherotar} -out ${cryptloc}${ficherotar}.encrypted
       rm -rf ${ficherotar}
     fi
@@ -145,14 +145,12 @@ fi
 ###	rsync
 
 if [ "$2" == "remote" ]; then
-        echo "Sincronizando con servidor remoto: $servidorRemoto" | tee -a $logFile
-        rsync -a $BackupLoc/$host-$date-$BackupType/$backupFile $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
+        echo "Sincronizando con servidor remoto: $remoteHost" | tee -a $logFile
+        rsync --delete-after -a $BackupLoc/$host-$BackupType-$date $remoteUser@$remoteHost:$remoteDir 2>> $logFile 1>> $logFile
         #rsync --delete-before -avze "ssh -i $DST_RMT_CERT" $BackupLoc/ $DST_RMT_USER@$servidorRemoto:$remoteDir 2>> $LOG 1>> $LOG
         if [[ $? = 0 ]]; then
                 echo "Sincronizacion realizada" | tee -a $logFile
-                #
-                # realizar insercion en coconut
-                #
+                #insercionCoconut
         else
                 echo "Sincronizacion fallida" | tee -a $logFile
                 mail -s "error de backup" $email < $logFile
