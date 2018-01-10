@@ -1,0 +1,10 @@
+[Unit]
+Description=Crear backup completo
+
+[Service]
+User=root
+Type=simple
+ExecStart=/ path to backupfull.sh
+
+[Install]
+WantedBy=multi-user.target

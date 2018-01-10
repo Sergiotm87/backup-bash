@@ -1,0 +1,10 @@
+[Unit]
+Description=Crear backup incremental
+
+[Service]
+User=root
+Type=simple
+ExecStart=/ path to backupincremental.sh
+
+[Install]
+WantedBy=multi-user.target
