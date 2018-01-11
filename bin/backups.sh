@@ -2,7 +2,7 @@
 #
 #script para realizar backups completos,incrementales y diferenciales
 #ejecucion: backup-bash.sh full|incremental|diferencial [remote]
-#requisitos: rsync
+#requisitos: rsync, postgresql
 #
 
 ###	variables
@@ -148,6 +148,7 @@ fi
 # fi
 
 ###	rsync
+# usa un par de claves sin frase de paso creadas previamente
 
 if [ "$2" == "remote" ]; then
         echo "Sincronizando con servidor remoto: ${remoteHost}" | tee -a ${logFile}
