@@ -21,9 +21,9 @@ remoteHost=172.22.200.42
 remoteUser=debian
 email=sergiotm87@gmail.com
 
-mickey=172.22.200
-minnie=172.22.81
-donald=172.22.85
+mickey=172.22.200.45
+minnie=172.22.200.81
+donald=172.22.200.85
 
 cryptloc=${BackupLoc}/${nombreBackup} #directorio donde se guardan los objetos encriptados
 
@@ -76,7 +76,7 @@ function makeBackup(){
 function insercionCoconut(){
   echo "Insercion en Coconut.." | tee -a ${logFile}
   status=200
-  psql -h 172.22.200.110 -U Sergio.Teran -d db_backup -c "INSERT INTO BACKUPS (backup_user, backup_host, backup_label, backup_description, backup_status, backup_mode) values ('Sergio.Teran', '${!host}','${backupFile}','Copia $1 de ${host}', '$status', 'Automatica')"
+  psql -h 172.22.200.110 -U Sergio.Teran -d db_backup -c "INSERT INTO BACKUPS (backup_user, backup_host, backup_label, backup_description, backup_status, backup_mode) values ('Sergio.Teran', '${!host}','${backupFile}','Copia ${BackupType} de ${host}', '$status', 'Automatica')" 2>> ${logFile} 1>> ${logFile}
   if [[ $? = 0 ]]; then
           echo "Insercion realizada: ${backupFile}" | tee -a ${logFile}
   else
@@ -95,11 +95,11 @@ function encriptar(){
     ficherotar=${fichero}.tar.gz
     if [[ ${option} == 'C' ]]; then
       tar -cpzf ${ficherotar} ${fichero} 2>> ${logFile} 1>> ${logFile}
-      openssl enc -aes-256-cbc -pass file:${cryptloc}/key.txt -in ${ficherotar} -out ${cryptloc}${ficherotar}.encrypted
+      openssl enc -aes-256-cbc -pass file:${cryptloc}/key.txt -in ${ficherotar} -out ${cryptloc}${ficherotar}.encrypted 2>> ${logFile} 1>> ${logFile}
       rm -rf ${ficherotar}
     fi
   done <${hostBackupDirs}
-  openssl rsautl -encrypt -in ${cryptloc}/key.txt -out ${cryptloc}/key.encrypted -inkey ${configFiles}backup.pub.pem -pubin
+  openssl rsautl -encrypt -in ${cryptloc}/key.txt -out ${cryptloc}/key.encrypted -inkey ${configFiles}backup.pub.pem -pubin 2>> ${logFile} 1>> ${logFile}
   rm ${cryptloc}/key.txt
 }
 
