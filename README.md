@@ -1,10 +1,14 @@
-h2. backup-bash
+#  backup-bash
 
-h3. Tarea de sistemas del modulo ASIR
+###  Tarea de sistemas del modulo ASIR
 
 El sistema de copias de seguridad ha sido realizado con un shell script haciendo uso de tar y rsync permitiendo realizar copias completas, incrementales o diferenciales.
 
-Se usan timers y services de systemD para ejecutarlo mediante la instrucción *backup-bash.sh full|incremental|diferencial [remote]*
+Se usan timers y services de systemD para ejecutarlo mediante la instrucción 
+```sh
+$ backup-bash.sh full|incremental|diferencial [remote]
+```
+
 
 Para utilizarlo se debe modificar:
 - los ficheros en /etc/backups/hosts para decidir que directorios incluir en la copia
@@ -20,7 +24,8 @@ Una vez realizada la sincronización externa con éxito se realiza la inserción
 
 Ejemplo de log del sistema tras realización de copia completa:
 
-*journalctl -u backupfull.service*
+```sh
+$ journalctl -u backupfull.service*
 
 Jan 11 19:29:02 minnie systemd [1]: Started Crear backup completo.
 Jan 11 19:29:02 minnie bash [29689]: Tipo de backup: FULL
@@ -32,3 +37,5 @@ Jan 11 19:29:05 minnie bash [29689]: Sincronizando con servidor remoto: 172.22.2
 Jan 11 19:29:06 minnie bash [29689]: Sincronizacion realizada
 Jan 11 19:29:06 minnie bash [29689]: Insercion en Coconut..
 Jan 11 19:29:06 minnie bash [29689]: Insercion realizada: minnie-full-2018-01-11.tar.gz
+```
+
