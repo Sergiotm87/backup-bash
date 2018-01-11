@@ -2,7 +2,6 @@
 #
 #script para realizar backups completos,incrementales y diferenciales
 #ejecucion: backup-bash.sh full|incremental|diferencial [remote]
-#requisitos: rsync, postgresql
 #
 
 ###	variables
@@ -165,6 +164,5 @@ fi
 #T O D O
 
 # estudiar diferencias del parametro de rsync --delete
-# asignar nombres de variables mas claros
 # añadir al readme los pasos no mostrados aqui (documentacion general (usar tarea redmine), creacion de ~/.pgpass para insertar en coconut, creacion de pares de claves tanto para la encriptacion como la conexion remota)
 # modificar copias diferenciales para usar solo sobre copias completas
