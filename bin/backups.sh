@@ -35,23 +35,23 @@ if [[ $# != 1 && $# != 2 ]]; then
     echo "Uso: $0 full|incremental|diferencial [remote]" | tee -a ${logFile}
     exit
 fi
-# directorio temporal de backups
+# existe directorio temporal de backups
 if [ ! -d ${BackupLoc} ]; then
-        echo "Creando Directorio temporal para backups: ${BackupLoc}"
-        mkdir -p /mnt/backups/
+        echo "Creando directorio temporal para backups: ${BackupLoc}"
+        mkdir /mnt/backups/
 fi
-# directorio de logs
+# existe directorio de logs
 if [ ! -d ${BackupLoc} ]; then
-        echo "Creando Directorio: ${BackupLoc}"
-        mkdir -p /var/log/backups/logs/
+        echo "Creando directorio de logs: ${BackupLoc}"
+        mkdir /var/log/backups/
 fi
-# tipo de backup
+# tipo de backup correcto
 if [[ "${BackupType}" != "full" && "${BackupType}" != "incremental" && "${BackupType}" != "diferencial" ]]; then
         echo "ERROR: Argumentos invalidos" | tee -a ${logFile}
         echo "Ejecutar como <full>, <incremental> o <diferencial>" | tee -a ${logFile}
         exit 1
 fi
-# existe el fichero de directorios del host con los directorios a los que realizar backup
+# existe el fichero del host con los directorios a los que realizar backup
 if [ ! -f ${hostBackupDirs} ]; then
         echo "ERROR: no existe el fichero ${hostBackupDirs}" | tee -a ${logFile}
         echo "Especificar a que directorios realizar backup" | tee -a ${logFile}
