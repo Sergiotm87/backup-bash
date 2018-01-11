@@ -6,6 +6,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 cp .pgpass ~/ #fichero conexion a base datos postgres
+chmod 600 ~/.pgpass
 mkdir /tmp/backups/ #ficheros temporales de backup
 mkdir /var/log/backups/
 cp -r etc/* /etc/
