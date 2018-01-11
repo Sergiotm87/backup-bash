@@ -154,7 +154,7 @@ if [ "$2" == "remote" ]; then
         rsync --delete-after -a -e "ssh -i ~/.ssh/backup" ${BackupLoc}/${nombreBackup} ${remoteUser}@${remoteHost}:$remoteDir 2>> ${logFile} 1>> ${logFile}
         if [[ $? = 0 ]]; then
                 echo "Sincronizacion realizada" | tee -a ${logFile}
-                #insercionCoconut
+                insercionCoconut
         else
                 echo "Sincronizacion fallida" | tee -a ${logFile}
                 mail -s "error de backup" ${email} < ${logFile}

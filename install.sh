@@ -5,10 +5,11 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-mkdir /tmp/backups/
-mkdir /var/log/backups/logs
+cp .pgpass ~/ #fichero conexion a base datos postgres
+mkdir /tmp/backups/ #ficheros temporales de backup
+mkdir /var/log/backups/
 cp -r etc/* /etc/
 cp -r bin/* /usr/local/bin/
-cp systemd/backup* /etc/systemd/system/
+cp systemd/backup* /etc/systemd/system/ #timers/services
 #ln -s ~/systemd/backup* /etc/systemd/system/
 systemctl daemon-reload
