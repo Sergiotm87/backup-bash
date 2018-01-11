@@ -15,11 +15,11 @@ snapshot=${host}.snar
 configFiles=/etc/backups/ #par de claves para encriptacion
 hostBackupDirs=${configFiles}hosts/${host} #ficheros de cada host con directorios a guardar
 
+## variables personalizables segun escenario
 remoteDir=/home/debian/backups
 remoteHost=172.22.200.42
 remoteUser=debian
 email=sergiotm87@gmail.com
-
 mickey=172.22.200.45
 minnie=172.22.200.81
 donald=172.22.200.85
@@ -27,7 +27,6 @@ donald=172.22.200.85
 cryptloc=${BackupLoc}/${nombreBackup} #directorio donde se guardan los objetos encriptados
 
 ###	comprobaciones
-
 # numero argumentos correctos
 if [[ $# != 1 && $# != 2 ]]; then
     echo "ERROR: Argumentos invalidos" | tee -a ${logFile}
@@ -104,7 +103,6 @@ function encriptar(){
 
 ###	full backup
 # genera una copia completa y un snapshot sobre el que realizar las copias incrementales
-
 if [ "${BackupType}" == "full" ]; then
         backupFile=${host}-full-${date}.tar.gz
         echo "Tipo de backup: FULL" | tee -a ${logFile}
@@ -117,7 +115,6 @@ fi
 
 ###   incremental backup
 # genera copias incrementales sobre un snapshot previamente creado
-
 if [ "${BackupType}" == "incremental" ]; then
         backupFile=${host}-incremental-${date}.tar.gz
         echo "Tipo de backup: INCREMENTAL" | tee -a ${logFile}
@@ -131,7 +128,6 @@ fi
 
 ###   diferencial backup
 # genera copias diferenciales desde la fecha de la ultima copia (fecha registrada en lastbackup.txt (no usar junto a incrementales con esta configuracion))
-
 # if [ "${BackupType}" == "diferencial" ]; then
 #         backupFile=$(hostname)-${date}-diferencial.tar.gz
 #         mkdir ${BackupLoc}/${nombreBackup}
@@ -148,7 +144,6 @@ fi
 
 ###	rsync
 # usa un par de claves sin frase de paso creadas previamente
-
 if [ "$2" == "remote" ]; then
         echo "Sincronizando con servidor remoto: ${remoteHost}" | tee -a ${logFile}
         rsync --delete-after -a -e "ssh -i ~/.ssh/backup" ${BackupLoc}/${nombreBackup} ${remoteUser}@${remoteHost}:$remoteDir 2>> ${logFile} 1>> ${logFile}
@@ -162,7 +157,6 @@ if [ "$2" == "remote" ]; then
 fi
 
 #T O D O
-
 # estudiar diferencias del parametro de rsync --delete
-# añadir al readme los pasos no mostrados aqui (documentacion general (usar tarea redmine), creacion de ~/.pgpass para insertar en coconut, creacion de pares de claves tanto para la encriptacion como la conexion remota)
+# añadir al readme los pasos no mostrados aqui (creacion de ~/.pgpass para insertar en coconut, creacion de pares de claves tanto para la encriptacion como la conexion remota)
 # modificar copias diferenciales para usar solo sobre copias completas
