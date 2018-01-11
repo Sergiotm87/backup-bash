@@ -2,8 +2,9 @@
 Description=Ejecuta la creacion de backup incremental
 
 [Timer]
-OnCalendar= por determinar
+OnCalendar=*-*-* 03:50:00
 Persistent=true
- 
+Unit=backupfull.service
+
 [Install]
 WantedBy=multi-user.target

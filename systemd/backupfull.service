@@ -4,7 +4,7 @@ Description=Crear backup completo
 [Service]
 User=root
 Type=simple
-ExecStart=/ path to backupfull.sh
+ExecStart=/bin/bash /usr/local/bin/backups.sh full remote
 
 [Install]
 WantedBy=multi-user.target
