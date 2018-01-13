@@ -2,7 +2,7 @@
 Description=Ejecuta la creacion de backup completo
 
 [Timer]
-OnCalendar=*-*-* 14:00:00
+OnCalendar=Mon *-*-* 03:50:00
 Persistent=true
 Unit=backupfull.service
 

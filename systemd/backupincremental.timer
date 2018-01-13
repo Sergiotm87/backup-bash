@@ -2,7 +2,7 @@
 Description=Ejecuta la creacion de backup incremental
 
 [Timer]
-OnCalendar=*-*-* 03:50:00
+OnCalendar=Tue-Sun *-*-* 03:50:00
 Persistent=true
 Unit=backupfull.service
 

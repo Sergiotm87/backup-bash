@@ -4,7 +4,7 @@ Description=Crear backup incremental
 [Service]
 User=root
 Type=simple
-ExecStart=/bin/bash /usr/local/bin/backup.sh incremental remote
+ExecStart=/bin/bash /usr/local/bin/backups.sh incremental remote
 
 [Install]
 WantedBy=multi-user.target
