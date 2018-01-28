@@ -1,0 +1,10 @@
+[Unit]
+Description=Elimina la copia incremental de la semana anterior
+
+[Timer]
+OnCalendar=Tue-Sun *-*-* 04:00:00
+Persistent=true
+Unit=rmBackup.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Elimina la copia completa del mes anterior
+
+[Timer]
+OnCalendar=*-*-01 04:00:00
+Persistent=true
+Unit=rmBackupFull.service
+
+[Install]
+WantedBy=multi-user.target

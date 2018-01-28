@@ -1,0 +1,10 @@
+[Unit]
+Description=Eliminar copia incremental antigua
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/bash rm -rf /home/debian/backups/*incremental-$(date +%Y-%m-%d -d "last week")
+
+[Install]
+WantedBy=multi-user.target

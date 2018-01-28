@@ -1,0 +1,10 @@
+[Unit]
+Description=Eliminar copia completa antigua
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/bash rm -rf /home/debian/backups/*full-$(date +%Y-%m-%d -d "last month")
+
+[Install]
+WantedBy=multi-user.target
