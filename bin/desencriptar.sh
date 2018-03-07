@@ -2,7 +2,8 @@
 #
 #script para desencriptar los ficheros de una copia de seguridad
 #
-#ejecucion: desencriptar.sh rutaFicherosEncriptados host
+#ejecucion: desencriptar.sh rutaFicherosEncriptados/ nombrehost(mickey/minnie/donald)
+#  ejemplo: desencriptar.sh /opt/mickey-full-2018-03-05/ mickey
 
 ###	variables
 ruta=$1
@@ -24,8 +25,8 @@ function desencriptar(){
     option=$(echo ${line} | cut -d' ' -f1)
     fichero=$(echo ${line} | cut -d' ' -f2)
     if [[ ${option} == 'C' ]]; then
-      openssl enc -aes-256-cbc -d -pass file:${ruta}key.txt -in ${fichero} -out $(echo $fichero | cut -d'.' -f 1,2,3)
-      tar -xzf ${fichero}.tar.gz
+      openssl enc -aes-256-cbc -d -pass file:${ruta}key.txt -in ${ruta}${fichero}.tar.gz.encrypted -out ${ruta}$fichero.tar.gz
+      tar -xzf ${ruta}${fichero}.tar.gz
     fi
   done <${hostBackupDirs}
   rm ${ruta}key.txt
